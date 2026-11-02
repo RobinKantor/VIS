@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,7 +15,7 @@ namespace vis3.Gateways
             string query = "SELECT OrderId, CustomerId, Width, Height, Depth, Material, Notes, Status FROM Orders";
 
             using (var connection = DbConnectionFactory.CreateConnection())
-            using (var command = new MySqlCommand(query, connection))
+            using (var command = new SqliteCommand(query, connection))
             {
                 connection.Open();
                 using (var reader = command.ExecuteReader())
@@ -43,10 +43,11 @@ namespace vis3.Gateways
         {
             string query = @"
                 INSERT INTO Orders (CustomerId, Width, Height, Depth, Material, Notes, Status)
-                VALUES (@CustomerId, @Width, @Height, @Depth, @Material, @Notes, @Status)";
+                VALUES (@CustomerId, @Width, @Height, @Depth, @Material, @Notes, @Status);
+                SELECT last_insert_rowid();";
 
             using (var connection = DbConnectionFactory.CreateConnection())
-            using (var command = new MySqlCommand(query, connection))
+            using (var command = new SqliteCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@CustomerId", dto.CustomerId);
                 command.Parameters.AddWithValue("@Width", dto.Width);
@@ -57,9 +58,7 @@ namespace vis3.Gateways
                 command.Parameters.AddWithValue("@Status", dto.Status);
 
                 connection.Open();
-                command.ExecuteNonQuery();
-
-                dto.OrderId = Convert.ToInt32(command.LastInsertedId);
+                dto.OrderId = Convert.ToInt32(command.ExecuteScalar());
             }
         }
 
@@ -68,7 +67,7 @@ namespace vis3.Gateways
             string query = "SELECT OrderId, CustomerId, Width, Height, Depth, Material, Notes, Status FROM Orders WHERE OrderId = @Id";
 
             using (var connection = DbConnectionFactory.CreateConnection())
-            using (var command = new MySqlCommand(query, connection))
+            using (var command = new SqliteCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@Id", id);
                 connection.Open();
@@ -103,7 +102,7 @@ namespace vis3.Gateways
                 WHERE OrderId = @OrderId";
 
             using (var connection = DbConnectionFactory.CreateConnection())
-            using (var command = new MySqlCommand(query, connection))
+            using (var command = new SqliteCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@OrderId", dto.OrderId);
                 command.Parameters.AddWithValue("@CustomerId", dto.CustomerId);

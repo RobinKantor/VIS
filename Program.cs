@@ -1,4 +1,3 @@
-﻿using Mysqlx.Crud;
 using vis3.DTO;
 
 namespace vis3
