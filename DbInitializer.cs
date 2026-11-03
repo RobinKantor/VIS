@@ -28,11 +28,11 @@ namespace vis3
                     command.ExecuteNonQuery();
                 }
 
-                string dropTablesQuery = "DROP TABLE IF EXISTS Orders; DROP TABLE IF EXISTS CustomersSti;";
-                using (var command = new SqliteCommand(dropTablesQuery, connection))
-                {
-                    command.ExecuteNonQuery();
-                }
+                //string dropTablesQuery = "DROP TABLE IF EXISTS Orders; DROP TABLE IF EXISTS CustomersSti;";
+                //using (var command = new SqliteCommand(dropTablesQuery, connection))
+                //{
+                //    command.ExecuteNonQuery();
+                //}
 
                 using (var command = new SqliteCommand("PRAGMA foreign_keys = ON;", connection))
                 {

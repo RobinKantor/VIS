@@ -4,7 +4,7 @@ using System.Text;
 
 namespace vis3.DTO
 {
-    public abstract class CustomerDto
+    public abstract class CustomerDto : BaseEntity
     {
         public int CustomerId { get; set; }
         public abstract string CustomerType { get; }

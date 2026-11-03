@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
+using System.Runtime.CompilerServices;
 using System.Text;
 using vis3.DTO;
 using vis3.Gateways;
@@ -74,6 +75,21 @@ namespace vis3
                 Status = "CEKA_NA_POTVRZENI"
             };
 
+            DiscountPolicy discount;
+            Money itemPrice = new Money(1000, "CZK");
+
+            if (o.OrderId % 2 == 0)
+            {
+                discount = new PercentageDiscount { Percentage = 10 };
+                itemPrice = discount.GetDiscountedPrice(itemPrice);
+                Console.WriteLine($"Cena po slevě: {itemPrice.Amount} {itemPrice.Currency}");
+            } else
+            {
+                discount = new NoDiscount();
+                itemPrice = discount.GetDiscountedPrice(itemPrice);
+                Console.WriteLine($"Cena: {itemPrice.Amount} {itemPrice.Currency}");
+            }
+
             //_orderGateway.Insert(o);
             uow.RegisterNewOrder(o);
 
@@ -92,6 +108,7 @@ namespace vis3
             if (foundOrder != null)
             {
                 foundOrder.Status = "POTVRZENO";
+                foundOrder.MarkUpdated();
 
                 //_orderGateway.Update(foundOrder);
                 uow.RegisterModifiedOrder(foundOrder);
