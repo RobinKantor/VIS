@@ -12,7 +12,7 @@ namespace vis3.Gateways
         public List<OrderDto> FindAll()
         {
             var list = new List<OrderDto>();
-            string query = "SELECT OrderId, CustomerId, Width, Height, Depth, Material, Notes, Status FROM Orders";
+            string query = "SELECT OrderId, CustomerId, Width, Height, Depth, Material, Notes, Status, Number, CalculatedPrice FROM Orders";
 
             using (var connection = DbConnectionFactory.CreateConnection())
             using (var command = new SqliteCommand(query, connection))
@@ -31,7 +31,9 @@ namespace vis3.Gateways
                             Depth = reader.GetInt32(4),
                             Material = reader.IsDBNull(5) ? null : reader.GetString(5),
                             Notes = reader.IsDBNull(6) ? null : reader.GetString(6),
-                            Status = reader.GetString(7)
+                            Status = reader.GetString(7),
+                            Number = reader.GetInt32(8),
+                            CalculatedPrice = reader.IsDBNull(9) ? null : new Money(reader.GetDecimal(9), "CZK")
                         });
                     }
                 }
@@ -42,8 +44,8 @@ namespace vis3.Gateways
         public void Insert(OrderDto dto)
         {
             string query = @"
-                INSERT INTO Orders (CustomerId, Width, Height, Depth, Material, Notes, Status)
-                VALUES (@CustomerId, @Width, @Height, @Depth, @Material, @Notes, @Status);
+                INSERT INTO Orders (CustomerId, Width, Height, Depth, Material, Notes, Status, Number, CalculatedPrice)
+                VALUES (@CustomerId, @Width, @Height, @Depth, @Material, @Notes, @Status, @Number, @CalculatedPrice);
                 SELECT last_insert_rowid();";
 
             using (var connection = DbConnectionFactory.CreateConnection())
@@ -56,6 +58,8 @@ namespace vis3.Gateways
                 command.Parameters.AddWithValue("@Material", (object)dto.Material ?? DBNull.Value);
                 command.Parameters.AddWithValue("@Notes", (object)dto.Notes ?? DBNull.Value);
                 command.Parameters.AddWithValue("@Status", dto.Status);
+                command.Parameters.AddWithValue("@Number", dto.Number);
+                command.Parameters.AddWithValue("@CalculatedPrice", dto.CalculatedPrice.Amount);
 
                 connection.Open();
                 dto.OrderId = Convert.ToInt32(command.ExecuteScalar());
@@ -64,7 +68,7 @@ namespace vis3.Gateways
 
         public OrderDto FindById(int id)
         {
-            string query = "SELECT OrderId, CustomerId, Width, Height, Depth, Material, Notes, Status FROM Orders WHERE OrderId = @Id";
+            string query = "SELECT OrderId, CustomerId, Width, Height, Depth, Material, Notes, Status, Number, CalculatedPrice FROM Orders WHERE OrderId = @Id";
 
             using (var connection = DbConnectionFactory.CreateConnection())
             using (var command = new SqliteCommand(query, connection))
@@ -85,7 +89,9 @@ namespace vis3.Gateways
                             Depth = reader.GetInt32(4),
                             Material = reader.IsDBNull(5) ? null : reader.GetString(5),
                             Notes = reader.IsDBNull(6) ? null : reader.GetString(6),
-                            Status = reader.GetString(7)
+                            Status = reader.GetString(7),
+                            Number = reader.GetInt32(8),
+                            CalculatedPrice = reader.IsDBNull(9) ? null : new Money(reader.GetDecimal(9), "CZK")
                         };
                     }
                 }
@@ -98,7 +104,7 @@ namespace vis3.Gateways
             string query = @"
                 UPDATE Orders 
                 SET CustomerId = @CustomerId, Width = @Width, Height = @Height, Depth = @Depth, 
-                    Material = @Material, Notes = @Notes, Status = @Status 
+                    Material = @Material, Notes = @Notes, Status = @Status, Number = @Number, CalculatedPrice = @CalculatedPrice
                 WHERE OrderId = @OrderId";
 
             using (var connection = DbConnectionFactory.CreateConnection())
@@ -112,6 +118,8 @@ namespace vis3.Gateways
                 command.Parameters.AddWithValue("@Material", (object)dto.Material ?? DBNull.Value);
                 command.Parameters.AddWithValue("@Notes", (object)dto.Notes ?? DBNull.Value);
                 command.Parameters.AddWithValue("@Status", dto.Status);
+                command.Parameters.AddWithValue("@Number", dto.Number);
+                command.Parameters.AddWithValue("@CalculatedPrice", dto.CalculatedPrice.Amount);
 
                 connection.Open();
                 command.ExecuteNonQuery();

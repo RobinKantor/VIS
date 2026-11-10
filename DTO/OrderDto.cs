@@ -13,6 +13,8 @@ namespace vis3.DTO
         public int Depth { get; set; }
         public string Material { get; set; }
         public string Notes { get; set; }
-        public string Status { get; set; } 
+        public string Status { get; set; }
+        public int Number { get; set; }
+        public Money? CalculatedPrice { get; set; }
     }
 }

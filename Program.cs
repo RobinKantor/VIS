@@ -11,6 +11,15 @@ namespace vis3
             OrderService service = new OrderService();
             UnitOfWork unitOfWork = new UnitOfWork();
 
+            var a = OrderNumberGenerator.GetInstance();
+            var b = OrderNumberGenerator.GetInstance();
+            Console.WriteLine("Cislo dalsi objednavky: " + a.GetNextNumber());
+            Console.WriteLine("Cislo dalsi objednavky: " + b.GetNextNumber());
+            Console.WriteLine("Cislo dalsi objednavky: " + a.GetNextNumber());
+            Console.WriteLine("Cislo dalsi objednavky: " + b.GetNextNumber());
+
+            IPricingStrategy pricingStrategy;
+
             Console.WriteLine("Jde o osobu nebo firmu? (Zadejte 'o' nebo 'f'): ");
             string input = Console.ReadLine();
 
@@ -18,10 +27,12 @@ namespace vis3
             if (input != null && input.ToUpper() == "O")
             {
                 customer = HandlePersonCustomer(service, unitOfWork);
+                pricingStrategy = new StandardPricing();
             }
             else
             {
                 customer = HandleCompanyCustomer(service, unitOfWork);
+                pricingStrategy = new CompanyPricing();
             }
 
             service.SaveChanges(unitOfWork);
@@ -52,7 +63,7 @@ namespace vis3
 
             try
             {
-                OrderDto order = service.CreateOrder(customer.CustomerId, width, height, depth, material, note, unitOfWork);
+                OrderDto order = service.CreateOrder(customer.CustomerId, width, height, depth, material, note, unitOfWork, pricingStrategy);
 
                 Console.WriteLine();
                 service.PrintOrder(order.OrderId);

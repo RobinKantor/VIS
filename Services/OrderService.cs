@@ -56,7 +56,8 @@ namespace vis3
             int depth,
             string material,
             string notes,
-            UnitOfWork uow
+            UnitOfWork uow,
+            IPricingStrategy pricingStrategy
             )
         {
             if (width <= 0 || height <= 0 || depth <= 0)
@@ -72,27 +73,20 @@ namespace vis3
                 Depth = depth,
                 Material = material,
                 Notes = notes,
-                Status = "CEKA_NA_POTVRZENI"
+                Status = "CEKA_NA_POTVRZENI",
+
+                Number = OrderNumberGenerator.GetInstance().GetNextNumber()
             };
 
-            DiscountPolicy discount;
-            Money itemPrice = new Money(1000, "CZK");
-
-            if (o.OrderId % 2 == 0)
+            List<Money> itemPrices = new List<Money>
             {
-                discount = new PercentageDiscount { Percentage = 10 };
-                itemPrice = discount.GetDiscountedPrice(itemPrice);
-                Console.WriteLine($"Cena po slevě: {itemPrice.Amount} {itemPrice.Currency}");
-            } else
-            {
-                discount = new NoDiscount();
-                itemPrice = discount.GetDiscountedPrice(itemPrice);
-                Console.WriteLine($"Cena: {itemPrice.Amount} {itemPrice.Currency}");
-            }
+                new Money(1000, "CZK"),
+                new Money(1000, "CZK")
+            };
 
-            //_orderGateway.Insert(o);
+            o.CalculatedPrice = pricingStrategy.GetPrice(itemPrices);
+
             uow.RegisterNewOrder(o);
-
             return o;
         }
 
@@ -140,7 +134,7 @@ namespace vis3
 
             foreach (OrderDto o in allOrders)
             {
-                Console.WriteLine($"ID: {o.OrderId} | Zákazník ID: {o.CustomerId} | Stav: {o.Status} | Materiál: {o.Material}");
+                Console.WriteLine($"ID: {o.OrderId} | Zákazník ID: {o.CustomerId} | Stav: {o.Status} | Materiál: {o.Material} | Cena: {o.CalculatedPrice?.Amount} {o.CalculatedPrice?.Currency}");
             }
         }
     }

@@ -40,7 +40,7 @@ namespace vis3
                 }
 
                 string createCustomersStiTable = @"
-                    CREATE TABLE CustomersSti (
+                    CREATE TABLE IF NOT EXISTS CustomersSti (
                         CustomerId INTEGER PRIMARY KEY AUTOINCREMENT,
                         CustomerType TEXT NOT NULL,
                         Email TEXT NOT NULL,
@@ -61,7 +61,7 @@ namespace vis3
                 }
 
                 string createOrdersTable = @"
-                    CREATE TABLE Orders (
+                    CREATE TABLE IF NOT EXISTS Orders (
                         OrderId INTEGER PRIMARY KEY AUTOINCREMENT,
                         CustomerId INTEGER NOT NULL,
                         Width INTEGER NOT NULL,
@@ -70,6 +70,8 @@ namespace vis3
                         Material TEXT NULL,
                         Notes TEXT NULL,
                         Status TEXT NOT NULL,
+                        Number INTEGER NOT NULL,
+                        CalculatedPrice DECIMAL(18, 2) NULL,
                         CONSTRAINT FK_Orders_Customers FOREIGN KEY (CustomerId) 
                             REFERENCES CustomersSti(CustomerId) ON DELETE CASCADE
                     );";
